@@ -1,12 +1,10 @@
-# ===================================================         /   /   E T L   /   /        ================================================== #
+# =================================================== / / E T L / / ================================================== #
 
-
-# ==================================================     /    IMPORT LIBRARY    /    ======================================================== #
+# ================================================== / IMPORT LIBRARY / ======================================================== #
 
 # [clone libraries]
 import requests
 import subprocess
-# import git
 
 # [pandas and file handling libraries]
 import pandas as pd
@@ -18,31 +16,22 @@ import mysql.connector
 import sqlalchemy
 from sqlalchemy import create_engine
 
-# =====================================================    /   CLONING   /     ============================================================== #
+# ===================================================== / CLONING / ============================================================== #
 
-#Specify the GitHub repository URL
+# Specify the GitHub repository URL
 response = requests.get('https://api.github.com/repos/PhonePe/pulse')
 repo = response.json()
 clone_url = repo['clone_url']
 
-#Specify the local directory path
+# Specify the local directory path
 clone_dir = "C:/Amrutha/Phonepe Pulse data"
 
 # Clone the repository to the specified local directory
 subprocess.run(["git", "clone", clone_url, clone_dir], check=True)
 
-# -----   /  Another method   /   -------- #
+# =============================================== / DATA PROCESSING / =========================================================== #
 
-# #Specify the GitHub repository URL and local directory path
-# github_url = "https://github.com/PhonePe/pulse.git"
-# local_dir = "C:/Amrutha/Phonepe Pulse data"
-
-# # Clone the repository to the specified local directory
-# git.Repo.clone_from(github_url, local_dir)
-
-# ===============================================    /    DATA PROCESSING     /   =========================================================== #
-
-#==============================     DATA     /     AGGREGATED     /     TRANSACTION     ===================================#
+# ============================== DATA / AGGREGATED / TRANSACTION ===================================#
 # 1
 
 path_1 = "C:/Amrutha/Phonepe Pulse data/data/aggregated/transaction/country/india/state/"
@@ -60,9 +49,9 @@ for i in Agg_tran_state_list:
 
         for k in Agg_yr_list:
             p_k = p_j + k
-            Data = open(p_k, 'r')
-            A = json.load(Data)
-            
+            with open(p_k, 'r') as Data:
+                A = json.load(Data)
+
             for l in A['data']['transactionData']:
                 Name = l['name']
                 count = l['paymentInstruments'][0]['count']
@@ -73,10 +62,10 @@ for i in Agg_tran_state_list:
                 Agg_tra['Transaction_type'].append(Name)
                 Agg_tra['Transaction_count'].append(count)
                 Agg_tra['Transaction_amount'].append(amount)
-                
+
 df_aggregated_transaction = pd.DataFrame(Agg_tra)
 
-#==============================     DATA     /     AGGREGATED     /     USER     ===================================#
+# ============================== DATA / AGGREGATED / USER ===================================#
 # 2
 
 path_2 = "C:/Amrutha/Phonepe Pulse data/data/aggregated/user/country/india/state/"
@@ -94,9 +83,9 @@ for i in Agg_user_state_list:
 
         for k in Agg_yr_list:
             p_k = p_j + k
-            Data = open(p_k, 'r')
-            B = json.load(Data)
-            
+            with open(p_k, 'r') as Data:
+                B = json.load(Data)
+
             try:
                 for l in B["data"]["usersByDevice"]:
                     brand_name = l["brand"]
@@ -107,13 +96,13 @@ for i in Agg_user_state_list:
                     Agg_user["Quarter"].append(int(k.strip('.json')))
                     Agg_user["Brands"].append(brand_name)
                     Agg_user["User_Count"].append(count_)
-                    Agg_user["User_Percentage"].append(ALL_percentage*100)
+                    Agg_user["User_Percentage"].append(ALL_percentage * 100)
             except:
                 pass
 
 df_aggregated_user = pd.DataFrame(Agg_user)
 
-#==============================     DATA     /     MAP     /     TRANSACTION     =========================================#
+# ============================== DATA / MAP / TRANSACTION =========================================#
 # 3
 
 path_3 = "C:/Amrutha/Phonepe Pulse data/data/map/transaction/hover/country/india/state/"
@@ -131,9 +120,9 @@ for i in map_tra_state_list:
 
         for k in Agg_yr_list:
             p_k = p_j + k
-            Data = open(p_k, 'r')
-            C = json.load(Data)
-            
+            with open(p_k, 'r') as Data:
+                C = json.load(Data)
+
             for l in C["data"]["hoverDataList"]:
                 District = l["name"]
                 count = l["metric"][0]["count"]
@@ -144,10 +133,10 @@ for i in map_tra_state_list:
                 map_tra["District"].append(District)
                 map_tra["Transaction_Count"].append(count)
                 map_tra["Transaction_Amount"].append(amount)
-                
+
 df_map_transaction = pd.DataFrame(map_tra)
 
-#==============================         DATA     /     MAP     /     USER         ============================================#
+# ============================== DATA / MAP / USER ============================================#
 # 4
 
 path_4 = "C:/Amrutha/Phonepe Pulse data/data/map/user/hover/country/india/state/"
@@ -165,8 +154,8 @@ for i in map_user_state_list:
 
         for k in Agg_yr_list:
             p_k = p_j + k
-            Data = open(p_k, 'r')
-            D = json.load(Data)
+            with open(p_k, 'r') as Data:
+                D = json.load(Data)
 
             for l in D["data"]["hoverData"].items():
                 district = l[0]
@@ -176,7 +165,7 @@ for i in map_user_state_list:
                 map_user['Quarter'].append(int(k.strip('.json')))
                 map_user["District"].append(district)
                 map_user["Registered_User"].append(registereduser)
-                
+
 df_map_user = pd.DataFrame(map_user)
 
 # 5
@@ -186,134 +175,4 @@ top_tra_state_list = os.listdir(path_5)
 
 top_tra = {'State': [], 'Year': [], 'Quarter': [], 'District_Pincode': [], 'Transaction_count': [], 'Transaction_amount': []}
 
-for i in top_tra_state_list:
-    p_i = path_5 + i + "/"
-    Agg_yr = os.listdir(p_i)
-
-    for j in Agg_yr:
-        p_j = p_i + j + "/"
-        Agg_yr_list = os.listdir(p_j)
-
-        for k in Agg_yr_list:
-            p_k = p_j + k
-            Data = open(p_k, 'r')
-            E = json.load(Data)
-            
-            for l in E['data']['pincodes']:
-                Name = l['entityName']
-                count = l['metric']['count']
-                amount = l['metric']['amount']
-                top_tra['State'].append(i)
-                top_tra['Year'].append(j)
-                top_tra['Quarter'].append(int(k.strip('.json')))
-                top_tra['District_Pincode'].append(Name)
-                top_tra['Transaction_count'].append(count)
-                top_tra['Transaction_amount'].append(amount)
-
-df_top_transaction = pd.DataFrame(top_tra)
-
-#==============================     DATA     /     TOP     /     USER     ============================================#
-# 6
-
-path_6 = "C:/Amrutha/Phonepe Pulse data/data/top/user/country/india/state/"
-top_user_state_list = os.listdir(path_6)
-
-top_user = {'State': [], 'Year': [], 'Quarter': [], 'District_Pincode': [], 'Registered_User': []}
-
-for i in top_user_state_list:
-    p_i = path_6 + i + "/"
-    Agg_yr = os.listdir(p_i)
-
-    for j in Agg_yr:
-        p_j = p_i + j + "/"
-        Agg_yr_list = os.listdir(p_j)
-
-        for k in Agg_yr_list:
-            p_k = p_j + k
-            Data = open(p_k, 'r')
-            F = json.load(Data)
-            
-            for l in F['data']['pincodes']:
-                Name = l['name']
-                registeredUser = l['registeredUsers']
-                top_user['State'].append(i)
-                top_user['Year'].append(j)
-                top_user['Quarter'].append(int(k.strip('.json')))
-                top_user['District_Pincode'].append(Name)
-                top_user['Registered_User'].append(registeredUser)
-                
-df_top_user = pd.DataFrame(top_user)
-
-#  =============     CONNECT SQL SERVER  /   CREAT DATA BASE    /  CREAT TABLE    /    STORE DATA    ========  #
-
-# Connect to the MySQL server
-mydb = mysql.connector.connect(
-  host = "localhost",
-  user = "root",
-  password = "root",
-  auth_plugin = "mysql_native_password"
-)
-
-# Create a new database and use
-mycursor = mydb.cursor()
-mycursor.execute("CREATE DATABASE IF NOT EXISTS phonepe_pulse")
-
-# Close the cursor and database connection
-mycursor.close()
-mydb.close()
-
-# Connect to the new created database
-engine = create_engine('mysql+mysqlconnector://root:root@localhost/phonepe_pulse', echo=False)
-
-# Use pandas to insert the DataFrames datas to the SQL Database -> table1
-
-# 1
-df_aggregated_transaction.to_sql('aggregated_transaction', engine, if_exists = 'replace', index=False,   
-                                 dtype={'State': sqlalchemy.types.VARCHAR(length=50), 
-                                       'Year': sqlalchemy.types.Integer, 
-                                       'Quater': sqlalchemy.types.Integer, 
-                                       'Transaction_type': sqlalchemy.types.VARCHAR(length=50), 
-                                       'Transaction_count': sqlalchemy.types.Integer,
-                                       'Transaction_amount': sqlalchemy.types.FLOAT(precision=5, asdecimal=True)})
-# 2
-df_aggregated_user.to_sql('aggregated_user', engine, if_exists = 'replace', index=False,
-                          dtype={'State': sqlalchemy.types.VARCHAR(length=50), 
-                                 'Year': sqlalchemy.types.Integer, 
-                                 'Quater': sqlalchemy.types.Integer,
-                                 'Brands': sqlalchemy.types.VARCHAR(length=50), 
-                                 'User_Count': sqlalchemy.types.Integer, 
-                                 'User_Percentage': sqlalchemy.types.FLOAT(precision=5, asdecimal=True)})
-# 3                       
-df_map_transaction.to_sql('map_transaction', engine, if_exists = 'replace', index=False,
-                          dtype={'State': sqlalchemy.types.VARCHAR(length=50), 
-                                 'Year': sqlalchemy.types.Integer, 
-                                 'Quater': sqlalchemy.types.Integer, 
-                                 'District': sqlalchemy.types.VARCHAR(length=50), 
-                                 'Transaction_Count': sqlalchemy.types.Integer, 
-                                 'Transaction_Amount': sqlalchemy.types.FLOAT(precision=5, asdecimal=True)})
-# 4
-df_map_user.to_sql('map_user', engine, if_exists = 'replace', index=False,
-                   dtype={'State': sqlalchemy.types.VARCHAR(length=50), 
-                          'Year': sqlalchemy.types.Integer, 
-                          'Quater': sqlalchemy.types.Integer, 
-                          'District': sqlalchemy.types.VARCHAR(length=50), 
-                          'Registered_User': sqlalchemy.types.Integer, })
-# 5                  
-df_top_transaction.to_sql('top_transaction', engine, if_exists = 'replace', index=False,
-                         dtype={'State': sqlalchemy.types.VARCHAR(length=50), 
-                                'Year': sqlalchemy.types.Integer, 
-                                'Quater': sqlalchemy.types.Integer,   
-                                'District_Pincode': sqlalchemy.types.Integer,
-                                'Transaction_count': sqlalchemy.types.Integer, 
-                                'Transaction_amount': sqlalchemy.types.FLOAT(precision=5, asdecimal=True)})
-# 6
-df_top_user.to_sql('top_user', engine, if_exists = 'replace', index=False,
-                   dtype={'State': sqlalchemy.types.VARCHAR(length=50), 
-                          'Year': sqlalchemy.types.Integer, 
-                          'Quater': sqlalchemy.types.Integer,                           
-                          'District_Pincode': sqlalchemy.types.Integer, 
-                          'Registered_User': sqlalchemy.types.Integer,})
-
-
-
-# =========================================================================================================================================== #
+for
