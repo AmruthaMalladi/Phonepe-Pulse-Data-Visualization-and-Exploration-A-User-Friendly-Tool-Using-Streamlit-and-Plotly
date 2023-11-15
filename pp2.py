@@ -1,5 +1,4 @@
 
-# ==================================================       /     IMPORT LIBRARY    /      =================================================== #
 
 # [clone libraries]
 import requests
@@ -21,14 +20,14 @@ import pymysql
 import streamlit as st
 import plotly.express as px
 
-# ==============================================         /   /   DASHBOARD   /   /         ================================================== #
+#dashboard #
 
-# ==============   /  CONNECT SQL SERVER  /   ACCESS DATA BASE    /   EXECUTE SQL QUERIES      /    ACCESS DATA   /   ========================= #
+# sql #
 
 conn = pymysql.connect(host='localhost', user='root', password='root', db='phonepe_pulse')
 cursor = conn.cursor()
 
-# ============================================       /     STREAMLIT DASHBOARD      /       ================================================= #
+# streamlit dashboard #
 
 # Comfiguring Streamlit GUI 
 st.set_page_config(layout='wide')
@@ -40,14 +39,14 @@ st.write('**(Note)**:-This data between **2018** to **2022** in **INDIA**')
 # Selection option
 option = st.radio('**Select your option**',('All India', 'State wise','Top Ten categories'),horizontal=True)
 
-# ===================================================       /      All India      /     ===================================================== #
+# india #
 
 if option == 'All India':
 
     # Select tab
     tab1, tab2 = st.tabs(['Transaction','User'])
 
-    # -------------------------       /     All India Transaction        /        ------------------ #
+    # all india transaction #
     with tab1:
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -84,9 +83,9 @@ if option == 'All India':
         df_in_tr_co_qry_rslt = pd.DataFrame(np.array(in_tr_co_qry_rslt), columns=['Total','Average'])
         df_in_tr_co_qry_rslt1 = df_in_tr_co_qry_rslt.set_index(['Average'])
 
-        # --------- / Output  /  -------- #
+       
 
-        # ------    /  Geo visualization dashboard for Transaction /   ---- #
+        #Geo visualization dashboard for Transaction #
         # Drop a State column from df_in_tr_tab_qry_rslt
         df_in_tr_tab_qry_rslt.drop(columns=['State'], inplace=True)
         # Clone the gio data
@@ -134,7 +133,7 @@ if option == 'All India':
             st.dataframe(df_in_tr_co_qry_rslt1)
 
 
-    # ---------------------------------------       /     All India User        /        ------------------------------------ #
+    #  All India User #
     with tab2:
         
         col1, col2 = st.columns(2)
@@ -157,9 +156,9 @@ if option == 'All India':
         df_in_us_co_qry_rslt = pd.DataFrame(np.array(in_us_co_qry_rslt), columns=['Total','Average'])
         df_in_us_co_qry_rslt1 = df_in_us_co_qry_rslt.set_index(['Average'])
 
-        # ---------  /  Output  /  -------- #
+        #  Output#
 
-        # ------    /  Geo visualization dashboard for User  /   ---- #
+        #  Geo visualization dashboard for User  #
         # Drop a State column from df_in_us_tab_qry_rslt
         df_in_us_tab_qry_rslt.drop(columns=['State'], inplace=True)
         # Clone the gio data
@@ -186,14 +185,14 @@ if option == 'All India':
         fig_use.update_layout(title_font=dict(size=33),title_font_color='#6739b7', height=800)
         st.plotly_chart(fig_use,use_container_width=True)
 
-        # ----   /   All India User Analysis Bar chart   /     -------- #
+        # All India User Analysis Bar chart#
         df_in_us_tab_qry_rslt1['State'] = df_in_us_tab_qry_rslt1['State'].astype(str)
         df_in_us_tab_qry_rslt1['User Count'] = df_in_us_tab_qry_rslt1['User Count'].astype(int)
         df_in_us_tab_qry_rslt1_fig = px.bar(df_in_us_tab_qry_rslt1 , x = 'State', y ='User Count', color ='User Count', color_continuous_scale = 'thermal', title = 'User Analysis Chart', height = 700,)
         df_in_us_tab_qry_rslt1_fig.update_layout(title_font=dict(size=33),title_font_color='#6739b7')
         st.plotly_chart(df_in_us_tab_qry_rslt1_fig,use_container_width=True)
 
-        # -----   /   All India Total User calculation Table   /   ----- #
+        #All India Total User calculation Table  #
         st.header(':violet[Total calculation]')
 
         col3, col4 = st.columns(2)
@@ -205,14 +204,13 @@ if option == 'All India':
             st.dataframe(df_in_us_co_qry_rslt1)
 
 
-
-# ==============================================          /     State wise       /             ============================================== #
+# State wise  #
 elif option =='State wise':
 
     # Select tab
     tab3, tab4 = st.tabs(['Transaction','User'])
 
-    # ---------------------------------       /     State wise Transaction        /        ------------------------------- # 
+    # State wise Transaction # 
     with tab3:
 
         col1, col2,col3 = st.columns(3)
@@ -253,16 +251,16 @@ elif option =='State wise':
         df_st_tr_co_qry_rslt = pd.DataFrame(np.array(st_tr_co_qry_rslt), columns=['Total','Average'])
         df_st_tr_co_qry_rslt1 = df_st_tr_co_qry_rslt.set_index(['Average'])
 
-        # ---------  /  Output  /  -------- #
+       
 
-        # -----    /   State wise Transaction Analysis bar chart   /   ------ #
+        #  State wise Transaction Analysis bar chart  #
         df_st_tr_tab_bar_qry_rslt1['Transaction_type'] = df_st_tr_tab_bar_qry_rslt1['Transaction_type'].astype(str)
         df_st_tr_tab_bar_qry_rslt1['Transaction_amount'] = df_st_tr_tab_bar_qry_rslt1['Transaction_amount'].astype(float)
         df_st_tr_tab_bar_qry_rslt1_fig = px.bar(df_st_tr_tab_bar_qry_rslt1 , x = 'Transaction_type', y ='Transaction_amount', color ='Transaction_amount', color_continuous_scale = 'thermal', title = 'Transaction Analysis Chart', height = 500,)
         df_st_tr_tab_bar_qry_rslt1_fig.update_layout(title_font=dict(size=33),title_font_color='#6739b7')
         st.plotly_chart(df_st_tr_tab_bar_qry_rslt1_fig,use_container_width=True)
 
-        # ------  /  State wise Total Transaction calculation Table  /  ---- #
+        #State wise Total Transaction calculation Table#
         st.header(':violet[Total calculation]')
 
         col4, col5 = st.columns(2)
@@ -303,16 +301,16 @@ elif option =='State wise':
         df_st_us_co_qry_rslt = pd.DataFrame(np.array(st_us_co_qry_rslt), columns=['Total','Average'])
         df_st_us_co_qry_rslt1 = df_st_us_co_qry_rslt.set_index(['Average'])
 
-        # ---------  /  Output  /  -------- #
+        
 
-        # -----   /   All India User Analysis Bar chart   /   ----- #
+        #All India User Analysis Bar chart#
         df_st_us_tab_qry_rslt1['Quarter'] = df_st_us_tab_qry_rslt1['Quarter'].astype(int)
         df_st_us_tab_qry_rslt1['User Count'] = df_st_us_tab_qry_rslt1['User Count'].astype(int)
         df_st_us_tab_qry_rslt1_fig = px.bar(df_st_us_tab_qry_rslt1 , x = 'Quarter', y ='User Count', color ='User Count', color_continuous_scale = 'thermal', title = 'User Analysis Chart', height = 500,)
         df_st_us_tab_qry_rslt1_fig.update_layout(title_font=dict(size=33),title_font_color='#6739b7')
         st.plotly_chart(df_st_us_tab_qry_rslt1_fig,use_container_width=True)
 
-        # ------    /   State wise User Total User calculation Table   /   -----#
+        #  State wise User Total User calculation Table#
         st.header(':violet[Total calculation]')
 
         col3, col4 = st.columns(2)
